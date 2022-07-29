@@ -226,9 +226,10 @@ With this core dump, you will able to find errors in your code.
 
 # Step 10 : Useful links
 
-Poudriere jail commands : https://www.gsp.com/cgi-bin/man.cgi?topic=POUDRIERE-JAIL
-How to use gdb : https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf
-Outdated wiki how to build on armv7 : https://github.com/rickyzhang82/FreeBSDWiki
-Poudriere hooks : https://dan.langille.org/2019/08/10/poudriere-hooks/
+Poudriere jail commands : https://www.gsp.com/cgi-bin/man.cgi?topic=POUDRIERE-JAIL \
+How to use gdb : https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf \
+Outdated wiki how to build on armv7 : https://github.com/rickyzhang82/FreeBSDWiki \
+Poudriere hooks : https://dan.langille.org/2019/08/10/poudriere-hooks/ \
+DHCP6c on aarch64 : https://ftp.yrzr.tk/opnsense/
 
 Thanks for reading, I hope that you like this tutorial !
