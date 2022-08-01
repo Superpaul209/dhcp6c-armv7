@@ -54,7 +54,7 @@ pkg install -y sudo
 
 Add your account in `/usr/local/etc/sudoers` if you use a different account other than root.
 
-Enable qemu-user-static in `rc.conf`: `qemu_user_static_enable="YES"`
+Enable qemu-user-static in `/etc/rc.conf`: `qemu_user_static_enable="YES"`
 
 Run the startup script to configure your system for building different architectures: `/usr/local/etc/rc.d/qemu_user_static start`
 
