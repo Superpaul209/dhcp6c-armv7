@@ -54,6 +54,10 @@ pkg install -y sudo
 
 Add your account in `/usr/local/etc/sudoers` if you use a different account other than root.
 
+Enable qemu-user-static in `rc.conf`: `qemu_user_static_enable="YES"`
+
+Run the startup script to configure your system for building different architectures: `/usr/local/etc/rc.d/qemu_user_static start`
+
 # Step 3 : Configure Poudriere
 
 Poudriere will be used to make an armv7 jail (container) for all packages. We will add a default config inside the folder `/usr/local/etc`
