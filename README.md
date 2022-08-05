@@ -78,9 +78,10 @@ PARALLEL_JOBS=8
 ALLOW_MAKE_JOBS=yes
 ```
 
-Do this command : 
+Create directories with commands below : 
 ```
 sudo mkdir -p /usr/local/poudriere/data
+sudo mkdir -p /usr/ports/distfiles
 ```
 This data folder is used by poudriere to store all logs, built packages and more.
 Edit the `SVN_HOST` and `FREEBSD_HOST` by your favorite hosts near you.
