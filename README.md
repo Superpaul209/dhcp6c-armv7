@@ -129,7 +129,7 @@ exit 0
 
 Its time to build your jail in the target arch (armv7) and FreeBSD version :
 
-# OLD
+OLD COMMAND
 ```
 sudo poudriere jails -c -j freebsd-12-2-armv7 -a arm.armv7 -m svn -v release/12.2.0
 ```
@@ -142,7 +142,7 @@ git clone https://git.freebsd.org/src.git /usr/src
 ```
 
 Then the new poudriere jail command will be used with our updated local sources :
-# NEW
+NEW COMMAND
 ```
 sudo poudriere jail -c -j freebsd-14-0-armv7 -a arm.armv7 -m src=/usr/src/freebsd-current
 ```
