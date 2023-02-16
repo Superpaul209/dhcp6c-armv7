@@ -128,12 +128,26 @@ exit 0
 # Step 4 : Create a poudriere jail
 
 Its time to build your jail in the target arch (armv7) and FreeBSD version :
+
+# OLD
 ```
 sudo poudriere jails -c -j freebsd-12-2-armv7 -a arm.armv7 -m svn -v release/12.2.0
 ```
-IMPORTANT : This command will run for a long time !!
+If you want to build an older version, check the SVN FreeBSD website and explore to find if your build is available. Modify the command with the version you want.
 
-If you want to build a more recent version, check the SVN FreeBSD website and explore to find if your build is available. Modify the command with the version you want.
+With versions 12.3 and above, the SVN is no longer used to retrieve the FreeBSD sources, you will need to create/update the `/usr/src` folder with these commands :
+```
+sudo rm -rf /usr/src
+git clone https://git.freebsd.org/src.git /usr/src
+```
+
+Then the new poudriere jail command will be used with our updated local sources :
+# NEW
+```
+sudo poudriere jail -c -j freebsd-14-0-armv7 -a arm.armv7 -m src=/usr/src/freebsd-current
+```
+
+IMPORTANT : This command will run for a long time !!
 
 You can view all the jails that are available with this command :
 ```
