@@ -144,7 +144,7 @@ git clone https://git.freebsd.org/src.git /usr/src
 Then the new poudriere jail command will be used with our updated local sources :
 NEW COMMAND
 ```
-sudo poudriere jail -c -j freebsd-14-0-armv7 -a arm.armv7 -m src=/usr/src/freebsd-current
+sudo poudriere jail -c -j freebsd-14-0-armv7 -a arm.armv7 -m src=/usr/src
 ```
 
 IMPORTANT : This command will run for a long time !!
