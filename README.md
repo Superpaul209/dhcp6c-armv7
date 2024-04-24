@@ -11,7 +11,7 @@ A new compiled dhcp6c package is available to download directly in this reposito
 
 First download your favorite software to make a new FreeBSD VM, install it and download the FreeBSD image here :
 https://www.freebsd.org/where/
-It is very important that you take the version 12.3 if you want to build packages for pfSense since they are using a FreeBSD 12.2 (in 2022-07). You must match the major release of the pfSense for your packages. Your host must be more recent than your jail.
+It is very important that you take the version of the target OS if you want to build packages for pfSense. You must match the major release of the pfSense for your packages. Your host must be more recent than your jail.
 
 You will need a very high amount of disk space, its recommended to put a minimum of 60 GB HD/SSD.
 Install this new VM and make the default conf like your account and IP.
@@ -29,7 +29,7 @@ service sshd start
 pkg install -y bash
 pkg install -y vim-console
 pkg install -y git
-pkg install -y poudriere-devel
+pkg install -y poudriere
 pkg install -y mkfile
 pkg install -y rsync
 pkg install -y nginx
@@ -125,7 +125,7 @@ fi
 exit 0
 ```
 
-# Step 4 : Create a poudriere jail
+# (OLD) Step 4 : Create a poudriere jail
 
 Its time to build your jail in the target arch (armv7) and FreeBSD version.
 
@@ -134,9 +134,16 @@ If you want to build an older version (before RELEASE-12.2), check the SVN FreeB
 sudo poudriere jails -c -j freebsd-12-2-armv7 -a arm.armv7 -m svn -v release/12.2.0
 ```
 
+# (NEW) Step 4 : Create a poudriere jail
+
 With versions 12.3 and above, the SVN is no longer used to retrieve the FreeBSD sources, you will need to create/update the `/usr/src` folder with these commands. First it will downloads the latest sources from GitHub and then compile a build environment in armv7. 
 
 /!\ The last command may takes a few hours to complete depending of the hardware you have put to your server /!\
+
+All sources are available on this page : https://cgit.freebsd.org/src
+If the target OS that you want to build is a release, choose stable/<VERSION>. If the target OS is a "CURRENT" build, you will have to choose the main branch.
+
+For a "CURRENT" kernel build :
 ```
 sudo rm -rf /usr/src
 git clone https://git.freebsd.org/src.git /usr/src
@@ -147,11 +154,16 @@ cd $BASEDIR/src
 make buildworld TARGET_ARCH=armv7
 ```
 
+For other branches, you will have to use a different command to specify the branch :
+```
+git clone -b stable/<VERSION> --depth 1 https://git.freebsd.org/src.git  /usr/src
+```
+
 Then the new poudriere jail command will be used with our updated local sources (make sure your buildworld command is done and successful first) :
 
 /!\ This command may takes a few hours to complete depending of the hardware you have put to your server /!\
 ```
-sudo poudriere jail -c -j freebsd-14-0-armv7 -a arm.armv7 -m src=/usr/src
+sudo poudriere jail -c -j freebsd-CURRENT-armv7 -a arm.armv7 -m src=/usr/src
 ```
 
 You can view all the jails that are available with this command :
