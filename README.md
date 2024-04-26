@@ -213,7 +213,14 @@ After everything is done, do this command to clean the `work` folder. Please be 
 make clean
 ```
 
-Copy all the patches inside the folder `/usr/local/etc/poudriere.d/local-patches`
+Before copying patches files in the folder, we need to do a testport to compile pkg for the jail.
+```
+mkdir /usr/ports
+mkdir /usr/ports/distfiles
+poudriere testport -j freebsd-CURRENT-armv7 -vv net/dhcp6
+```
+
+Then, copy all the patches inside the folder `/usr/local/etc/poudriere.d/local-patches`
 
 IMPORTANT !! Your new source code must be compared with the original files from the default ports tree. Your code can't be compared with a different initial package. Doing that will gives you errors that your patches can't apply.
 
@@ -222,13 +229,13 @@ IMPORTANT !! Your new source code must be compared with the original files from 
 Your code is ready to be built and patched to create a new package !
 Run this command to ouput all debug and test if the compile is successful or wrong :
 ```
-sudo poudriere testport -j freebsd-12-2-armv7 -vv net/dhcp6
+sudo poudriere testport -j freebsd-CURRENT-armv7 -vv net/dhcp6
 ```
 Please fix all errors that may occur if you have any. All errors are available in the folder `/usr/local/poudriere/data/logs/bulk/latest-per-pkg`
 
 If the testport is done successfully, you can now build the new package :
 ```
-sudo poudriere bulk -j freebsd-12-2-armv7 -vv net/dhcp6
+sudo poudriere bulk -j freebsd-CURRENT-armv7 -vv net/dhcp6
 ```
 The package will be available here : `/usr/local/poudriere/data/packages`
 
