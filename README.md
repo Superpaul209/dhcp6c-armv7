@@ -6,6 +6,7 @@ The main objective of this repository is to create a new version of the dhcp6 cl
 You will also be able to compile any package on FreeBSD for armv7 with this tutorial.
 
 A new compiled dhcp6c package is available to download directly in this repository to avoid doing all the steps below !
+BUILT FOR FREEBSD 15.0 CURRENT (1500018) FOR ARMv7 CPUs.
 
 # Step 1 : Install a FreeBSD VM
 
