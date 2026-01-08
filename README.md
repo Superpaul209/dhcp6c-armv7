@@ -1,60 +1,39 @@
 # Configure DHCP6c for FreeBSD ARMv7 (pfSense / OpnSense / other)
 
 In this github, you will find different files to compile dhcp6c by yourself and learn more how to do it.
-The main objective of this repository is to create a new version of the dhcp6 client to be able to use raw-options and fix main bugs. This package is used on pfSense and isn't available for armv7 arch, if you have a SG-3100, you will need to compile or download the binary in this repository.
+The main objective of this repository is to create a new version of the dhcp6 client to be able to use raw-options and fix main bugs. This package is used on pfSense and isn't available for armv7 arch, if you have a SG-3100, you will need to compile or download the binary in this repository. All the updated source code is fetched from https://github.com/opnsense/dhcp6c.
 
 You will also be able to compile any package on FreeBSD for armv7 with this tutorial.
-
-A new compiled dhcp6c package is available to download directly in this repository to avoid doing all the steps below !
-BUILT FOR FREEBSD 15.0 CURRENT (1500018) FOR ARMv7 CPUs.
 
 # Step 1 : Install a FreeBSD VM
 
 First download your favorite software to make a new FreeBSD VM, install it and download the FreeBSD image here :
 https://www.freebsd.org/where/
 It is very important that you take the version of the target OS if you want to build packages for pfSense. You must match the major release of the pfSense for your packages. Your host must be more recent than your jail.
+Main = CURRENT
+Stable/xx = STABLE
 
-You will need a very high amount of disk space, its recommended to put a minimum of 60 GB HD/SSD.
-Install this new VM and make the default conf like your account and IP.
+You will need a high amount of disk space, its recommended to put a minimum of 60 GB HD/SSD.
+Install this new VM with the FreeBSD installer and make the default conf like your account and IP.
 
-Enable SSH by doing those steps :
+Enable SSH by doing those steps (if not already done) :
 Add line in `/etc/rc.conf` : `sshd_enable="YES"`
 Run: 
 ```
 service sshd start
 ```
 
-# Step 2 : Install packages
+# Step 2 : Install packages and setup the OS
 
 ```
-pkg install -y bash
-pkg install -y vim-console
-pkg install -y git
-pkg install -y poudriere
-pkg install -y mkfile
-pkg install -y rsync
-pkg install -y nginx
-pkg install -y unbound
-pkg install -y screen
-pkg install -y the_silver_searcher
-pkg install -y htop
-pkg install -y tmux
-pkg install -y qemu-user-static
-pkg install -y subversion
-pkg install -y bash-completion
-pkg install -y gnupg
-pkg install -y coreutils
-pkg install -y libpcap
-pkg install -y gmake
-pkg install -y gsed
-pkg install -y pkgconf
-pkg install -y cmake
-pkg install -y pkgconf
-pkg install -y sudo
+pkg install bash vim nano git poudriere rsync nginx unbound screen the_silver_searcher htop tmux qemu-user-static subversion bash-completion gnupg coreutils libpcap gmake gsed pkgconf cmake pkgconf sudo
 ```
+Some packages are recommended but not required like : nano vim screen htop tmux
 
 Add your account in `/usr/local/etc/sudoers` if you use a different account other than root.
-
+```
+sudo visudo
+```
 Enable qemu-user-static in `/etc/rc.conf`: `qemu_user_static_enable="YES"`
 
 Run the startup script to configure your system for building different architectures: `/usr/local/etc/rc.d/qemu_user_static start`
@@ -62,13 +41,12 @@ Run the startup script to configure your system for building different architect
 # Step 3 : Configure Poudriere
 
 Poudriere will be used to make an armv7 jail (container) for all packages. We will add a default config inside the folder `/usr/local/etc`
-Modify poudriere.conf and add all lines below :
+Modify `poudriere.conf` and add all lines below :
 
 ```
 NO_ZFS=yes
-FREEBSD_HOST=ftp://ftp.fr.freebsd.org/pub/FreeBSD/
+FREEBSD_HOST=http://ftp.freebsd.org/pub/FreeBSD/
 BASEFS=/usr/local/poudriere
-SVN_HOST=svnmir.bme.freebsd.org
 POUDRIERE_DATA=${BASEFS}/data
 NOLINUX=yes
 USE_COLORS=yes
@@ -77,6 +55,7 @@ BUILDER_HOSTNAME=build
 DISTFILES_CACHE=/usr/ports/distfiles
 PARALLEL_JOBS=8
 ALLOW_MAKE_JOBS=yes
+FREEBSD_GIT_BRANCH=main
 ```
 
 Create directories with commands below : 
@@ -85,14 +64,16 @@ sudo mkdir -p /usr/local/poudriere/data
 sudo mkdir -p /usr/ports/distfiles
 ```
 This data folder is used by poudriere to store all logs, built packages and more.
-Edit the `SVN_HOST` and `FREEBSD_HOST` by your favorite hosts near you.
+Edit the `FREEBSD_HOST` by your favorite location near you. Edit `FREEBSD_GIT_BRANCH` with the version you are building either main (CURRENT) or stable.
 
 Add the following code inside `/usr/local/etc/poudriere.d` inside the file `make.conf` :
 ```
 ALLOW_UNSUPPORTED_SYSTEM=yes
 MAKE_JOBS_UNSAFE=yes
 WITH_DEBUG=yes
+.if empty(EXTRA_PATCHES:M/local-patches/)
 EXTRA_PATCHES+= /local-patches/
+.endif
 ```
 `WITH_DEBUG` option is optional, it will be used to track code errors later in the package `gdb`
 
@@ -126,23 +107,19 @@ fi
 exit 0
 ```
 
-# (OLD) Step 4 : Create a poudriere jail
+# Step 4 : Create a poudriere jail
 
-Its time to build your jail in the target arch (armv7) and FreeBSD version.
-
-If you want to build an older version (before RELEASE-12.2), check the SVN FreeBSD website and explore to find if your build is available. Modify the command with the version you want.
-```
-sudo poudriere jails -c -j freebsd-12-2-armv7 -a arm.armv7 -m svn -v release/12.2.0
-```
-
-# (NEW) Step 4 : Create a poudriere jail
-
-With versions 12.3 and above, the SVN is no longer used to retrieve the FreeBSD sources, you will need to create/update the `/usr/src` folder with these commands. First it will downloads the latest sources from GitHub and then compile a build environment in armv7. 
-
-/!\ The last command may takes a few hours to complete depending of the hardware you have put to your server /!\
+You will need to create/update the `/usr/src` folder with these commands. First it will downloads the latest sources from GitHub and then compile a build environment in armv7. 
 
 All sources are available on this page : https://cgit.freebsd.org/src
-If the target OS that you want to build is a release, choose stable/<VERSION>. If the target OS is a "CURRENT" build, you will have to choose the main branch.
+If the target OS that you want to build is a release, choose `stable/<VERSION>`. If the target OS is a "CURRENT" build, you will have to choose the `main` branch.
+
+For other branches, you will have to use a different command to specify the branch :
+```
+git clone -b stable/<VERSION> --depth 1 https://git.freebsd.org/src.git  /usr/src
+```
+
+The last command `make buildworld TARGET_ARCH=armv7` will takes a few hours to complete !
 
 For a "CURRENT" kernel build :
 ```
@@ -155,14 +132,10 @@ cd $BASEDIR/src
 make buildworld TARGET_ARCH=armv7
 ```
 
-For other branches, you will have to use a different command to specify the branch :
-```
-git clone -b stable/<VERSION> --depth 1 https://git.freebsd.org/src.git  /usr/src
-```
-
 Then the new poudriere jail command will be used with our updated local sources (make sure your buildworld command is done and successful first) :
 
 /!\ This command may takes a few hours to complete depending of the hardware you have put to your server /!\
+
 ```
 sudo poudriere jail -c -j freebsd-CURRENT-armv7 -a arm.armv7 -m src=/usr/src
 ```
@@ -171,15 +144,12 @@ You can view all the jails that are available with this command :
 ```
 poudriere jail -l
 ```
+
 All commands for jails are available under `poudriere jail`
 
 # Step 5 : Configure default ports of FreeBSD for your jail
 
 FreeBSD ports will be used as "references" for the packages we want to modify.
-Do this command to update all ports of your host FreeBSD :
-```
-sudo portsnap auto
-```
 
 This command below will create a "default" ports folder for your jails :
 ```
@@ -209,7 +179,7 @@ After everything is done, do this command to create patches :
 make makepatch
 ```
 All differences will be written in the folder `files` in a `patch-<FILE>` file.
-After everything is done, do this command to clean the `work` folder. Please be careful to backup files.
+After everything is done, do this command to clean the `work` folder. Please be careful to backup files !
 ```
 make clean
 ```
@@ -240,12 +210,16 @@ sudo poudriere bulk -j freebsd-CURRENT-armv7 -vv net/dhcp6
 ```
 The package will be available here : `/usr/local/poudriere/data/packages`
 
-You may have errors at the step "package", if your code doesn't include all the files for dhcp6, you may need to edit what you want to build in the `Makefile` and `pkg-plist`. For example in my repository, I have done only the client and not the server.
-Edit this line :
+You may have errors at the step "package", if your code doesn't include all the files for dhcp6 (like this example), you will need to edit the `Makefile` and `pkg-plist` files.
+
+Edit this line in `/usr/local/poudriere/ports/default/net/dhcp6/Makefile` :
 ```
-USE_RC_SUBR=	dhcp6c dhcp6relay dhcp6s
+USE_RC_SUBR=	dhcp6c
 ```
-Remove `dhcp6relay` and `dhcp6s` if you dont want them.
+Remove `dhcp6relay` and `dhcp6s`
+
+Inside the `/usr/local/poudriere/ports/default/net/dhcp6/pkg-plist` file :
+
 ```
 etc/dhcp6c.conf.sample
 sbin/dhcp6c
@@ -253,6 +227,7 @@ man/man5/dhcp6c.conf.5.gz
 man/man8/dhcp6c.8.gz
 @owner root
 ```
+Remove all references about other components except dhcp6c.
 
 # Step 8 : Test your new package
 
@@ -270,6 +245,7 @@ With this core dump, you will able to find errors in your code.
 
 # Step 10 : Useful links
 
+The official repository for the latest dhcp6c source code : https://github.com/opnsense/dhcp6c \
 Poudriere jail commands : https://www.gsp.com/cgi-bin/man.cgi?topic=POUDRIERE-JAIL \
 How to use gdb : https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf \
 Outdated wiki how to build on armv7 : https://github.com/rickyzhang82/FreeBSDWiki \
